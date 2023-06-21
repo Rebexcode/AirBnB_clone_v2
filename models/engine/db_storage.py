@@ -39,7 +39,17 @@ class DBStorage:
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
                                       .format(user, passwd, host, database), pool_pre_ping=True)
         if env == 'test':
-            Base.metadate.drop_all(self.__engine)
+            Base.metadata.drop_all(self.__engine)
+
+    def get(self, cls, id):
+        """Retrieves an object"""
+        if cls is not None and type(cls) is str and id is not None and\
+                type(id) is str and cls is nametoclass:
+                    cls = nametoclass[cls]
+                    res = self.__session.query(cls).filter(cls.id == id).first()
+                    return res
+        else:
+            return None
 
     def all(self, cls=None):
         """Returns dictionary of all present object"""
@@ -78,3 +88,7 @@ class DBStorage:
             self.reload()
         if obj:
             self.__session.delete(obj)
+
+    def close(self):
+        """Disposes of session if active"""
+        self.__session.remove()
